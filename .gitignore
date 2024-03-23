@@ -1,0 +1,23 @@
+### Project specific files ###
+bin/
+**/out
+**/signatures
+
+### macOS ###
+.DS_Store
+.AppleDouble
+.LSOverride
+
+### Go ###
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+### VisualStudioCode ###
+.vscode/
+.history/
+*.vsix
