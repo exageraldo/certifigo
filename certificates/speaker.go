@@ -34,6 +34,7 @@ func (c *SpeakerCertificate) Generate() error {
 	if err := c.loadDefaultFont(30); err != nil {
 		return err
 	}
+	c.setTextColor()
 
 	line := fmt.Sprintf(
 		"participou como palestrante no %s, realizado no dia %s,",

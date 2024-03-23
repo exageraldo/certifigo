@@ -1,0 +1,32 @@
+[CANVA]
+SIZE={W=1600, H=800}
+
+# Background
+BACKGROUND_COLOR={R=92, G=255, B=230, A=255}
+OVERLAY_COLOR={R=0, G=0, B=0, A=180}
+OVERLAY_MARGIN_SIZE=20.0
+
+# Text
+ATTENDANCE_TITLE="CERTIFICADO DE PARTICIPAÇÃO"
+SPEAKER_TITLE="CERTIFICADO DE PALESTRANTE"
+SIGNATURE_LINE_LENGTH=22
+TEXT_COLOR={R=255, G=255, B=255, A=255}
+
+# Paths
+SIGNATURES_DIR="signatures/"
+FONTS_DIR="fonts/"
+
+# [event]
+# name=""
+# location=""
+# date=""
+# duration=0
+# attendee = [
+#     {name="", email=""}
+# ]
+
+# [[event.speakers]]
+# name=""
+# email=""
+# talk_title=""
+# talk_duration=0

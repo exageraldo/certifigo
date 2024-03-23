@@ -34,6 +34,7 @@ func (c *AttendanceCertificate) Generate() error {
 	if err := c.loadDefaultFont(30); err != nil {
 		return err
 	}
+	c.setTextColor()
 
 	line := fmt.Sprintf(
 		"participou do %s, realizado no dia %s,",

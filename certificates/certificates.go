@@ -1,6 +1,7 @@
 package certificates
 
 import (
+	"fmt"
 	"image/color"
 	"os"
 	"path/filepath"
@@ -10,17 +11,23 @@ import (
 	"github.com/disintegration/imaging"
 	"github.com/exageraldo/suacuna-cli/fonts"
 	"github.com/fogleman/gg"
+	"github.com/spf13/viper"
 )
 
 type CertificationType string
 
 const (
-	AttendanceCertification CertificationType = "CERTIFICADO DE PARTICIPAÇÃO"
-	SpeakerCertification    CertificationType = "CERTIFICADO DE PALESTRANTE"
+	AttendanceCertification CertificationType = "attendee"
+	SpeakerCertification    CertificationType = "speaker"
 )
 
 func newCertificate(event Event, signature string, certificationType CertificationType) (*certificate, error) {
-	const width, height = 1600, 800
+	var (
+		width  = viper.GetInt("canva.size.w")
+		height = viper.GetInt("canva.size.h")
+	)
+
+	fmt.Println(width, height)
 
 	return &certificate{
 		Type:  certificationType,
@@ -66,7 +73,7 @@ type Signature struct {
 
 func (s *Signature) GetPath() string {
 	return filepath.Join(
-		"signatures",
+		viper.GetString("SIGNATURES_DIR"),
 		strings.Replace(s.Name, " ", "-", -1)+".png",
 	)
 }
@@ -80,6 +87,13 @@ type certificate struct {
 	size      struct {
 		width, height float64
 	}
+}
+
+func (c *certificate) getCertificateTitle() string {
+	return viper.GetString(map[CertificationType]string{
+		AttendanceCertification: "canva.attendance_title",
+		SpeakerCertification:    "canva.speaker_title",
+	}[c.Type])
 }
 
 func (c *certificate) loadSignatureFont() error {
@@ -105,17 +119,30 @@ func (c *certificate) loadDefaultFont(points float64) error {
 func (c *certificate) setBackground() {
 	c.canva.DrawRectangle(0, 0, c.size.width, c.size.height)
 
-	// solid color
-	c.canva.SetColor(color.RGBA{92, 225, 230, 255})
+	// solid color background
+	bgColor := viper.GetStringMap("canva.background_color")
+	c.canva.SetColor(color.RGBA{
+		R: uint8(bgColor["r"].(int64)),
+		G: uint8(bgColor["g"].(int64)),
+		B: uint8(bgColor["b"].(int64)),
+		A: uint8(bgColor["a"].(int64)),
+	})
 	c.canva.Fill()
 
 	// semi-transparent overlay
-	margin := 20.0
+	margin := viper.GetFloat64("canva.overlay_margin_size")
 	x := margin
 	y := margin
 	w := c.size.width - (2.0 * margin)
 	h := c.size.height - (2.0 * margin)
-	c.canva.SetColor(color.RGBA{0, 0, 0, 180})
+
+	overlayColor := viper.GetStringMap("canva.overlay_color")
+	c.canva.SetColor(color.RGBA{
+		R: uint8(overlayColor["r"].(int64)),
+		G: uint8(overlayColor["g"].(int64)),
+		B: uint8(overlayColor["b"].(int64)),
+		A: uint8(overlayColor["a"].(int64)),
+	})
 	c.canva.DrawRectangle(x, y, w, h)
 	c.canva.Fill()
 }
@@ -124,9 +151,10 @@ func (c *certificate) setCertificationType() error {
 	if err := c.loadDefaultFont(80); err != nil {
 		return err
 	}
-	c.canva.SetColor(color.White)
+	c.setTextColor()
+
 	c.canva.DrawStringAnchored(
-		string(c.Type),
+		c.getCertificateTitle(),
 		c.size.width/2,
 		c.size.height/4,
 		0.5,
@@ -139,8 +167,8 @@ func (c *certificate) setPersonName(name string) error {
 	if err := c.loadDefaultFont(70); err != nil {
 		return err
 	}
+	c.setTextColor()
 
-	c.canva.SetColor(color.White)
 	c.canva.DrawStringAnchored(
 		name,
 		c.size.width/2,
@@ -150,6 +178,24 @@ func (c *certificate) setPersonName(name string) error {
 	)
 
 	return nil
+}
+
+func (c *certificate) setTextColor() {
+	// txtColor := color.RGBA{}
+	// if err := viper.UnmarshalKey("CANVA.TEXT_COLOR", &txtColor); err != nil {
+	// 	fmt.Fprintf(os.Stderr, "%s\n", err)
+	// 	os.Exit(1)
+	// }
+	// c.canva.SetColor(txtColor)
+
+	textColor := viper.GetStringMap("canva.text_color")
+	fmt.Println(textColor)
+	c.canva.SetColor(color.RGBA{
+		R: uint8(textColor["r"].(int64)),
+		G: uint8(textColor["g"].(int64)),
+		B: uint8(textColor["b"].(int64)),
+		A: uint8(textColor["a"].(int64)),
+	})
 }
 
 func (c *certificate) setImgSignature() error {
@@ -171,11 +217,10 @@ func (c *certificate) setImgSignature() error {
 	if err := c.loadDefaultFont(15); err != nil {
 		return err
 	}
-
-	c.canva.SetColor(color.White)
+	c.setTextColor()
 
 	c.canva.DrawStringAnchored(
-		"______________________",
+		strings.Repeat("_", viper.GetInt("canva.signature_line_length")),
 		c.size.width/2,
 		(5*c.size.height/6)+float64(signatureHeight/2),
 		0.5,
@@ -195,10 +240,11 @@ func (c *certificate) setImgSignature() error {
 }
 
 func (c *certificate) setTextSignature() error {
-	c.canva.SetColor(color.White)
 	if err := c.loadSignatureFont(); err != nil {
 		return err
 	}
+	c.setTextColor()
+
 	c.canva.DrawStringAnchored(
 		c.signature.Name,
 		c.size.width/2,
@@ -214,7 +260,7 @@ func (c *certificate) setTextSignature() error {
 	}
 
 	c.canva.DrawStringAnchored(
-		"______________________",
+		strings.Repeat("_", viper.GetInt("canva.signature_line_length")),
 		c.size.width/2,
 		(5*c.size.height/6)+float64(signatureHeight/2),
 		0.5,
