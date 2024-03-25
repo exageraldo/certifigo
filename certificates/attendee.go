@@ -42,8 +42,8 @@ func (c *AttendanceCertificate) Generate() error {
 	)
 	c.canva.DrawStringAnchored(
 		line,
-		c.size.width/2,
-		5*c.size.height/8,
+		c.Width()/2,
+		5*c.Height()/8,
 		0.5,
 		0.5,
 	)
@@ -53,13 +53,13 @@ func (c *AttendanceCertificate) Generate() error {
 			"nas instalações da %s, com carga horária total de %d horas.",
 			c.Event.Loc, c.Event.Duration,
 		),
-		c.size.width/2,
-		(5*c.size.height/8)+2*h,
+		c.Width()/2,
+		(5*c.Height()/8)+2*h,
 		0.5,
 		0.5,
 	)
 
-	if err := c.save(); err != nil {
+	if err := c.save(c.Attendee.Name); err != nil {
 		return err
 	}
 

@@ -13,7 +13,7 @@ import (
 var (
 	cfgFile string
 
-	//go:embed _defaults/suacunarc.toml
+	//go:embed _default.toml
 	defaultConfig []byte
 )
 
@@ -33,31 +33,30 @@ func init() {
 
 func initConfig() {
 	viper.SetConfigType("toml")
-	if err := viper.ReadConfig(bytes.NewReader(defaultConfig)); err != nil {
-		fmt.Println("Can't read default config:", err)
+
+	if err := viper.MergeConfig(bytes.NewReader(defaultConfig)); err != nil {
+		fmt.Fprintf(os.Stderr, "Can't read default config: %s\n", err)
 		os.Exit(1)
 	}
 
 	if cfgFile != "" {
 		_, err := os.Stat(cfgFile)
 		if os.IsNotExist(err) {
-			fmt.Println("Config file does not exist:", cfgFile)
+			fmt.Fprintf(os.Stderr, "Config file does not exist: %s\n", err)
 			os.Exit(1)
 		}
 
 		viper.SetConfigFile(cfgFile)
 		if err := viper.MergeInConfig(); err != nil {
-			fmt.Println("Can't merge config:", err)
+			fmt.Fprintf(os.Stderr, "Can't merge config: %s\n", err)
 			os.Exit(1)
 		}
 
 		if err := viper.ReadInConfig(); err != nil {
-			fmt.Println("Can't read config:", err)
+			fmt.Fprintf(os.Stderr, "Can't read passed config: %s\n", err)
 			os.Exit(1)
 		}
 	}
-
-	fmt.Println(viper.AllSettings())
 }
 
 var rootCmd = &cobra.Command{
@@ -70,7 +69,7 @@ var rootCmd = &cobra.Command{
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		fmt.Fprintf(os.Stderr, "%s\n", err)
 		os.Exit(1)
 	}
 }

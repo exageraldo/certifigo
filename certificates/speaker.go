@@ -42,8 +42,8 @@ func (c *SpeakerCertificate) Generate() error {
 	)
 	c.canva.DrawStringAnchored(
 		line,
-		c.size.width/2,
-		5*c.size.height/8,
+		c.Width()/2,
+		5*c.Height()/8,
 		0.5,
 		0.5,
 	)
@@ -53,13 +53,13 @@ func (c *SpeakerCertificate) Generate() error {
 			"com a palestra %s, com duração de %.1f horas.",
 			c.Speaker.TalkTitle, float64(c.Speaker.TalkDuration)/60,
 		),
-		c.size.width/2,
-		(5*c.size.height/8)+2*h,
+		c.Width()/2,
+		(5*c.Height()/8)+2*h,
 		0.5,
 		0.5,
 	)
 
-	if err := c.save(); err != nil {
+	if err := c.save(c.Speaker.Name); err != nil {
 		return err
 	}
 

@@ -22,12 +22,8 @@ const (
 )
 
 func newCertificate(event Event, signature string, certificationType CertificationType) (*certificate, error) {
-	var (
-		width  = viper.GetInt("canva.size.w")
-		height = viper.GetInt("canva.size.h")
-	)
-
-	fmt.Println(width, height)
+	width := viper.GetInt("canva.size.w")
+	height := viper.GetInt("canva.size.h")
 
 	return &certificate{
 		Type:  certificationType,
@@ -36,13 +32,7 @@ func newCertificate(event Event, signature string, certificationType Certificati
 		signature: &Signature{
 			Name: signature,
 		},
-		size: struct {
-			width  float64
-			height float64
-		}{
-			width:  float64(width),
-			height: float64(height),
-		},
+		out: viper.GetString("canva.output_dir"),
 	}, nil
 }
 
@@ -73,8 +63,8 @@ type Signature struct {
 
 func (s *Signature) GetPath() string {
 	return filepath.Join(
-		viper.GetString("SIGNATURES_DIR"),
-		strings.Replace(s.Name, " ", "-", -1)+".png",
+		viper.GetString("canva.signatures_dir"),
+		strings.ToLower(strings.Replace(s.Name, " ", "-", -1))+".png",
 	)
 }
 
@@ -84,9 +74,15 @@ type certificate struct {
 
 	canva     *gg.Context
 	signature *Signature
-	size      struct {
-		width, height float64
-	}
+	out       string
+}
+
+func (c *certificate) Width() float64 {
+	return float64(c.canva.Width())
+}
+
+func (c *certificate) Height() float64 {
+	return float64(c.canva.Height())
 }
 
 func (c *certificate) getCertificateTitle() string {
@@ -117,7 +113,7 @@ func (c *certificate) loadDefaultFont(points float64) error {
 }
 
 func (c *certificate) setBackground() {
-	c.canva.DrawRectangle(0, 0, c.size.width, c.size.height)
+	c.canva.DrawRectangle(0, 0, c.Width(), c.Height())
 
 	// solid color background
 	bgColor := viper.GetStringMap("canva.background_color")
@@ -133,8 +129,8 @@ func (c *certificate) setBackground() {
 	margin := viper.GetFloat64("canva.overlay_margin_size")
 	x := margin
 	y := margin
-	w := c.size.width - (2.0 * margin)
-	h := c.size.height - (2.0 * margin)
+	w := c.Width() - (2.0 * margin)
+	h := c.Height() - (2.0 * margin)
 
 	overlayColor := viper.GetStringMap("canva.overlay_color")
 	c.canva.SetColor(color.RGBA{
@@ -155,8 +151,8 @@ func (c *certificate) setCertificationType() error {
 
 	c.canva.DrawStringAnchored(
 		c.getCertificateTitle(),
-		c.size.width/2,
-		c.size.height/4,
+		c.Width()/2,
+		c.Height()/4,
 		0.5,
 		0.5,
 	)
@@ -171,8 +167,8 @@ func (c *certificate) setPersonName(name string) error {
 
 	c.canva.DrawStringAnchored(
 		name,
-		c.size.width/2,
-		c.size.height/2,
+		c.Width()/2,
+		c.Height()/2,
 		0.5,
 		0.5,
 	)
@@ -189,7 +185,6 @@ func (c *certificate) setTextColor() {
 	// c.canva.SetColor(txtColor)
 
 	textColor := viper.GetStringMap("canva.text_color")
-	fmt.Println(textColor)
 	c.canva.SetColor(color.RGBA{
 		R: uint8(textColor["r"].(int64)),
 		G: uint8(textColor["g"].(int64)),
@@ -199,6 +194,11 @@ func (c *certificate) setTextColor() {
 }
 
 func (c *certificate) setImgSignature() error {
+	var (
+		width  = c.Width()
+		height = c.Height()
+	)
+
 	signatureHeight := 100
 	signatureImg, err := gg.LoadImage(c.signature.GetPath())
 	if err != nil {
@@ -208,8 +208,8 @@ func (c *certificate) setImgSignature() error {
 
 	c.canva.DrawImageAnchored(
 		resizedSignature,
-		int(c.size.width/2),
-		int(5*c.size.height/6),
+		int(width/2),
+		int(5*height/6),
 		0.5,
 		0.5,
 	)
@@ -221,8 +221,8 @@ func (c *certificate) setImgSignature() error {
 
 	c.canva.DrawStringAnchored(
 		strings.Repeat("_", viper.GetInt("canva.signature_line_length")),
-		c.size.width/2,
-		(5*c.size.height/6)+float64(signatureHeight/2),
+		width/2,
+		(5*height/6)+float64(signatureHeight/2),
 		0.5,
 		0.5,
 	)
@@ -230,8 +230,8 @@ func (c *certificate) setImgSignature() error {
 	_, h := c.canva.MeasureString(c.signature.Name)
 	c.canva.DrawStringAnchored(
 		c.signature.Name,
-		c.size.width/2,
-		5*c.size.height/6+2*h+float64(signatureHeight/2),
+		width/2,
+		5*height/6+2*h+float64(signatureHeight/2),
 		0.5,
 		0.5,
 	)
@@ -240,6 +240,11 @@ func (c *certificate) setImgSignature() error {
 }
 
 func (c *certificate) setTextSignature() error {
+	var (
+		width  = c.Width()
+		height = c.Height()
+	)
+
 	if err := c.loadSignatureFont(); err != nil {
 		return err
 	}
@@ -247,8 +252,8 @@ func (c *certificate) setTextSignature() error {
 
 	c.canva.DrawStringAnchored(
 		c.signature.Name,
-		c.size.width/2,
-		5*c.size.height/6,
+		width/2,
+		5*height/6,
 		0.5,
 		0.5,
 	)
@@ -261,8 +266,8 @@ func (c *certificate) setTextSignature() error {
 
 	c.canva.DrawStringAnchored(
 		strings.Repeat("_", viper.GetInt("canva.signature_line_length")),
-		c.size.width/2,
-		(5*c.size.height/6)+float64(signatureHeight/2),
+		width/2,
+		(5*height/6)+float64(signatureHeight/2),
 		0.5,
 		0.5,
 	)
@@ -270,8 +275,8 @@ func (c *certificate) setTextSignature() error {
 	_, h := c.canva.MeasureString(c.signature.Name)
 	c.canva.DrawStringAnchored(
 		c.signature.Name,
-		c.size.width/2,
-		5*c.size.height/6+2*h+float64(signatureHeight/2),
+		width/2,
+		5*height/6+2*h+float64(signatureHeight/2),
 		0.5,
 		0.5,
 	)
@@ -306,13 +311,35 @@ func (c *certificate) generate(name string) error {
 	return nil
 }
 
-func (c *certificate) save() error {
-	filename := c.Event.Date.Format("02-01-2006-") + strings.ReplaceAll(
-		string(c.Type)+"-"+c.Event.Name+"-"+time.Now().Format(time.DateTime),
-		" ",
-		"-",
+func (c *certificate) save(identifier string) error {
+	if identifier == "" {
+		identifier = fmt.Sprint(time.Now().Unix())
+	}
+	filename := fmt.Sprintf(
+		"%s-%s-%s-%s.png",
+		c.Event.Date.Format("02-01-2006"),
+		string(c.Type),
+		c.Event.Name,
+		identifier,
 	)
-	if err := c.canva.SavePNG(filepath.Join(filename + ".png")); err != nil {
+	filename = strings.ToLower(strings.ReplaceAll(filename, " ", "-"))
+	filename = filepath.Join(c.out, filename+".png")
+
+	absFilePath, err := filepath.Abs(filename)
+	if err != nil {
+		return err
+	}
+
+	// Create directory if it doesn't exist
+	err = os.MkdirAll(
+		filepath.Dir(absFilePath),
+		os.ModePerm,
+	)
+	if err != nil {
+		return err
+	}
+
+	if err := c.canva.SavePNG(filename); err != nil {
 		return err
 	}
 	return nil
