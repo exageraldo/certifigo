@@ -2,15 +2,6 @@
 
 ![action workflow](https://github.com/exageraldo/suacuna-cli/actions/workflows/release.yml/badge.svg)
 
-## Funcionalidades
-
-- ✅ Criar interação via CLI
-    - ✅ Carregar arquivo de configuração (do canva)
-    - ✅ Comando para gerar certificado de participação
-    - ✅ Comando para gerar certificado de palestrantes
-    - ✅ Comando para gerar certificados a partir de configuração (do evento)
-- ⬜️ ...
-
 ## Uso
 
 Arquivo de configuração
@@ -132,3 +123,4 @@ $ ./bin/suacuna-cli --help
 ## Leia mais
 
 - [Fontes](fonts/README.md)
+- [Releases](https://github.com/exageraldo/suacuna-cli/releases)
