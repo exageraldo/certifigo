@@ -1,5 +1,7 @@
 # Suaçuna CLI
 
+![action workflow](https://github.com/exageraldo/suacuna-cli/actions/workflows/release.yml/badge.svg)
+
 ## Funcionalidades
 
 - ✅ Criar interação via CLI
