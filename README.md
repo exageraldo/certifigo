@@ -4,69 +4,80 @@
 
 ## Uso
 
-Arquivo de configuração
+### Arquivo de configuração
+
+O arquivo de configuração é um arquivo TOML que contém as configurações padrão para a geração de certificados. O arquivo de configuração é opcional em todos os comandos, se não for fornecido, as configurações padrão serão usadas. O arquivo de configuração pode ser fornecido com a flag `--config`.
 
 ```toml
-# configuracao.toml
-
-[CANVA]
-SIZE={W=1600, H=800}
-OVERLAY_MARGIN_SIZE=20.0
-
-# Colors
-BACKGROUND_COLOR={R=92, G=255, B=230, A=255}
-OVERLAY_COLOR={R=0, G=0, B=0, A=180}
-TEXT_COLOR={R=255, G=255, B=255, A=255}
+# Arquivo de configuração padrão
 
 # Text
-ATTENDANCE_TITLE="CERTIFICADO DE PARTICIPAÇÃO"
-SPEAKER_TITLE="CERTIFICADO DE PALESTRANTE"
-SIGNATURE_LINE_LENGTH=22
+TextSize=30
+TextColor={R=255, G=255, B=255, A=255}
 
-# Paths
-OUTPUT_DIR="output/"
-SIGNATURES_DIR="signatures/"
-FONTS_DIR="fonts/"
+# Title
+AttendanceTitle="CERTIFICADO DE PARTICIPAÇÃO"
+SpeakerTitle="CERTIFICADO DE PALESTRANTE"
+TitleTextSize=80
+TitleTextColor={R=255, G=255, B=255, A=255}
+
+# Person
+PersonTextSize=70
+
+# Validator
+ValidatorMinLength=8
+ValidatorMaxLength=11
+ValidatorTextSize=20
+ValidatorTextColor={R=255, G=255, B=255, A=85} # same as text color with 1/3 of the alpha
+
+# Signature
+SignatureDir="signatures/"
+SignatureLineLength=22
+SignatureImgSize=100
+SignatureTextSize=60
+SignatureTextColor={R=255, G=255, B=255, A=255}
+SignatureTitleSize=15
+SignatureTitleColor={R=255, G=255, B=255, A=255}
+
+# Output
+OutputDir="output/"
+DefaultFileName="_output.json"
 ```
 
-Gerando certificado de participação
+### Gerando certificado de participação
 
 ```sh
-./suacuna-cli generate attendee \
+suacuna-cli generate attendee \
     --name="Nome da Pessoa Participante" \
     --email="nome@email.com" \
     --event="11º Nome do Evento" \
     --loc="Nome do Local" \
-    --date="01/01/2024" \
-    --duration=4 \
+    --date="01/01/2024" \ # dd/mm/yyyy
+    --duration=4 \ # horas
     --signature="Nome da Pessoa Assinante" \
+    --notify \ # se deseja notificar a pessoa por email
     --config="configuracao.toml"
 ```
 
-Geração de certificado de palestrante
+### Geração de certificado de palestrante
 
 ```sh
-./suacuna-cli generate speaker \
+suacuna-cli generate speaker \
     --name="Nome da Pessoa Palestrante" \
     --email="nome@email.com" \
     --talk-title="Algum titulo" \
-    --talk-duration=30 \
+    --talk-duration=30 \ # minutos
     --event="11º Nome do Evento" \
     --loc="Nome do Local" \
-    --date="01/01/2024" \
-    --duration=4 \
+    --date="01/01/2024" \ # dd/mm/yyyy
+    --duration=4 \ # horas
     --signature="Nome da Pessoa Assinante" \
-    --attendee \
+    --attendee \ # se a pessoa também for participante
+    --notify \ # se deseja notificar a pessoa por email
     --config="configuracao.toml"
 ```
 
-Geração de certificado usando arquivo de configuração
-
-```sh
-./suacuna-cli generate from-file \
-    --file="evento.toml" \
-    --config="configuracao.toml"
-```
+### Geração de certificado usando arquivo com informações do evento
 
 Arquivo com informações do evento
 
@@ -76,14 +87,14 @@ Arquivo com informações do evento
 [event]
 name="1º Nome do Evento"
 location="Nome do Local"
-date="01/01/2024"
-duration=4
+date="01/01/2024" # dd/mm/yyyy
+duration=4 # horas
 signature="Nome da Pessoa Assinante"
 
 [[attendees]]
 name="Nome da Pessoa Participante"
 email="nome@email.com"
-notify=true
+notify=true # se deseja notificar a pessoa por email
 
 [[attendees]]
 # ...
@@ -92,14 +103,21 @@ notify=true
 name="Nome da Pessoa Palestrante"
 email="nome@email.com"
 talkTitle="Algum Titulo"
-talkDuration=30
-attendee=true
-notify=true
+talkDuration=30 # minutos
+attendee=true # se a pessoa também for participante
+notify=true # se deseja notificar a pessoa por email
 
 [[speakers]]
 # ...
 ```
 
+Uma vez que o arquivo com as informações do evento foi criado, os certificados podem ser gerados com o comando:
+
+```sh
+suacuna-cli generate from-file \
+    --file="evento.toml" \
+    --config="configuracao.toml"
+```
 
 
 ## Desenvolvimento
