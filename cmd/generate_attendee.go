@@ -5,14 +5,9 @@ import (
 	"os"
 
 	"github.com/exageraldo/suacuna-cli/certificates"
+	"github.com/exageraldo/suacuna-cli/config"
 	"github.com/spf13/cobra"
 )
-
-func setAttendeeFlags(cmd *cobra.Command) {
-	cmd.Flags().String("name", "", "Name of the attendee")
-	cmd.Flags().String("email", "", "Email of the attendee")
-	cmd.MarkFlagRequired("name")
-}
 
 func init() {
 	setAttendeeFlags(generateAttendeeCmd)
@@ -23,11 +18,18 @@ func init() {
 	generateCmd.AddCommand(generateAttendeeCmd)
 }
 
+func setAttendeeFlags(cmd *cobra.Command) {
+	cmd.Flags().String("name", "", "Name of the attendee")
+	cmd.Flags().String("email", "", "Email of the attendee")
+	cmd.MarkFlagRequired("name")
+}
+
 func attendeeFromCmd(cmd *cobra.Command) (*certificates.Attendee, error) {
 	name, err := cmd.Flags().GetString("name")
 	if err != nil {
 		return nil, err
 	}
+
 	email, err := cmd.Flags().GetString("email")
 	if err != nil {
 		return nil, err
@@ -58,15 +60,19 @@ var generateAttendeeCmd = &cobra.Command{
 			fmt.Fprintf(os.Stderr, "%s\n", err)
 			os.Exit(1)
 		}
-		c, err := certificates.NewAttendanceCertificate(
-			*attendee,
-			*event,
-			signature,
-		)
+
+		cfg, err := config.NewCertificateFromConfig()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%s\n", err)
 			os.Exit(1)
 		}
+
+		c := certificates.NewAttendanceCertificate(
+			*attendee,
+			*event,
+			signature,
+			*cfg,
+		)
 
 		if err := c.Generate(); err != nil {
 			fmt.Fprintf(os.Stderr, "%s\n", err)

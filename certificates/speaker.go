@@ -1,17 +1,28 @@
 package certificates
 
-import "fmt"
+import (
+	"fmt"
 
-func NewSpeakerCertificate(speaker Speaker, event Event, signature string) (*SpeakerCertificate, error) {
-	c, err := newCertificate(event, signature, SpeakerCertification)
-	if err != nil {
-		return nil, err
-	}
+	"github.com/exageraldo/suacuna-cli/assets"
+	"github.com/exageraldo/suacuna-cli/config"
+	"github.com/fogleman/gg"
+)
 
+func NewSpeakerCertificate(speaker Speaker, event Event, signature string, cfg config.Certificate) *SpeakerCertificate {
 	return &SpeakerCertificate{
-		Speaker:     &speaker,
-		certificate: *c,
-	}, nil
+		Speaker: &speaker,
+		Certificate: Certificate{
+			Type:  config.SpeakerCertification,
+			Event: &event,
+
+			canva: gg.NewContext(
+				cfg.CanvaSize.W,
+				cfg.CanvaSize.H,
+			),
+			config:    &cfg,
+			signature: signature,
+		},
+	}
 }
 
 type Speaker struct {
@@ -23,7 +34,7 @@ type Speaker struct {
 
 type SpeakerCertificate struct {
 	Speaker *Speaker
-	certificate
+	Certificate
 }
 
 func (c *SpeakerCertificate) Generate() error {
@@ -31,10 +42,10 @@ func (c *SpeakerCertificate) Generate() error {
 		return err
 	}
 
-	if err := c.loadDefaultFont(30); err != nil {
+	if err := c.setFont(assets.OpenSans, c.config.TextSize); err != nil {
 		return err
 	}
-	c.setTextColor()
+	c.setColorConfig(c.config.TextColor)
 
 	line := fmt.Sprintf(
 		"participou como palestrante no %s, realizado no dia %s,",

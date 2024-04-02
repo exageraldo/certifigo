@@ -93,6 +93,7 @@ name="Nome da Pessoa Palestrante"
 email="nome@email.com"
 talkTitle="Algum Titulo"
 talkDuration=30
+attendee=true
 notify=true
 
 [[speakers]]

@@ -1,4 +1,6 @@
-# Fontes
+# Recursos
+
+## Fontes
 
 Estamos usando duas fontes do [`Google Fonts`](https://fonts.google.com) nesse projeto:
 - [**Cedarville Cursive**](https://fonts.google.com/specimen/Cedarville+Cursive) - *Designed by [Kimberly Geswein](https://fonts.google.com/?query=Kimberly%20Geswein)*

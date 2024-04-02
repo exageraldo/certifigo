@@ -5,19 +5,9 @@ import (
 	"os"
 
 	"github.com/exageraldo/suacuna-cli/certificates"
+	"github.com/exageraldo/suacuna-cli/config"
 	"github.com/spf13/cobra"
 )
-
-func setSpeakerFlags(cmd *cobra.Command) {
-	cmd.Flags().String("name", "", "Name of the speaker")
-	cmd.Flags().String("email", "", "Email of the speaker")
-	cmd.Flags().String("talk-title", "", "Title of the talk")
-	cmd.Flags().Int("talk-duration", 0, "Duration of the talk")
-
-	cmd.MarkFlagRequired("name")
-	cmd.MarkFlagRequired("talk-title")
-	cmd.MarkFlagRequired("talk-duration")
-}
 
 func init() {
 	setSpeakerFlags(generateSpeakerCmd)
@@ -29,6 +19,17 @@ func init() {
 	generateSpeakerCmd.Flags().Bool("attendee", false, "Generate attendee certificate")
 
 	generateCmd.AddCommand(generateSpeakerCmd)
+}
+
+func setSpeakerFlags(cmd *cobra.Command) {
+	cmd.Flags().String("name", "", "Name of the speaker")
+	cmd.Flags().String("email", "", "Email of the speaker")
+	cmd.Flags().String("talk-title", "", "Title of the talk")
+	cmd.Flags().Int("talk-duration", 0, "Duration of the talk")
+
+	cmd.MarkFlagRequired("name")
+	cmd.MarkFlagRequired("talk-title")
+	cmd.MarkFlagRequired("talk-duration")
 }
 
 func speakerFromCmd(cmd *cobra.Command) (*certificates.Speaker, error) {
@@ -76,15 +77,17 @@ var generateSpeakerCmd = &cobra.Command{
 			fmt.Fprintf(os.Stderr, "%s\n", err)
 			os.Exit(1)
 		}
-		c, err := certificates.NewSpeakerCertificate(
-			*speaker,
-			*event,
-			signature,
-		)
+		cfg, err := config.NewCertificateFromConfig()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%s\n", err)
 			os.Exit(1)
 		}
+		c := certificates.NewSpeakerCertificate(
+			*speaker,
+			*event,
+			signature,
+			*cfg,
+		)
 
 		if err := c.Generate(); err != nil {
 			fmt.Fprintf(os.Stderr, "%s\n", err)
@@ -102,10 +105,17 @@ var generateSpeakerCmd = &cobra.Command{
 				fmt.Fprintf(os.Stderr, "%s\n", err)
 				os.Exit(1)
 			}
-			c, err := certificates.NewAttendanceCertificate(
+
+			cfg, err := config.NewCertificateFromConfig()
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%s\n", err)
+				os.Exit(1)
+			}
+			c := certificates.NewAttendanceCertificate(
 				*attendee,
 				*event,
 				signature,
+				*cfg,
 			)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%s\n", err)

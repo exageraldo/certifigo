@@ -2,18 +2,27 @@ package certificates
 
 import (
 	"fmt"
+
+	"github.com/exageraldo/suacuna-cli/assets"
+	"github.com/exageraldo/suacuna-cli/config"
+	"github.com/fogleman/gg"
 )
 
-func NewAttendanceCertificate(attendee Attendee, event Event, signature string) (*AttendanceCertificate, error) {
-	c, err := newCertificate(event, signature, AttendanceCertification)
-	if err != nil {
-		return nil, err
-	}
-
+func NewAttendanceCertificate(attendee Attendee, event Event, signature string, cfg config.Certificate) *AttendanceCertificate {
 	return &AttendanceCertificate{
-		Attendee:    &attendee,
-		certificate: *c,
-	}, nil
+		Attendee: &attendee,
+		Certificate: Certificate{
+			Type:  config.AttendanceCertification,
+			Event: &event,
+
+			canva: gg.NewContext(
+				cfg.CanvaSize.W,
+				cfg.CanvaSize.H,
+			),
+			config:    &cfg,
+			signature: signature,
+		},
+	}
 }
 
 type Attendee struct {
@@ -23,7 +32,7 @@ type Attendee struct {
 
 type AttendanceCertificate struct {
 	Attendee *Attendee
-	certificate
+	Certificate
 }
 
 func (c *AttendanceCertificate) Generate() error {
@@ -31,10 +40,10 @@ func (c *AttendanceCertificate) Generate() error {
 		return err
 	}
 
-	if err := c.loadDefaultFont(30); err != nil {
+	if err := c.setFont(assets.OpenSans, c.config.TextSize); err != nil {
 		return err
 	}
-	c.setTextColor()
+	c.setColorConfig(c.config.TextColor)
 
 	line := fmt.Sprintf(
 		"participou do %s, realizado no dia %s,",

@@ -1,12 +1,19 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/exageraldo/suacuna-cli/certificates"
+	"github.com/exageraldo/suacuna-cli/config"
 	"github.com/pelletier/go-toml/v2"
 	"github.com/spf13/cobra"
+)
+
+var (
+	ErrConfigFileRequired = errors.New("config file is required")
 )
 
 func init() {
@@ -16,13 +23,14 @@ func init() {
 	generateCmd.AddCommand(generateFromFileCmd)
 }
 
-type tomlFileCfg struct {
+type eventConfig struct {
 	Event struct {
-		Name      string `toml:"name"`
-		Location  string `toml:"location"`
-		Date      string `toml:"date"`
-		Duration  int    `toml:"duration"`
-		Signature string `toml:"signature"`
+		Name      string         `toml:"name"`
+		Location  string         `toml:"location"`
+		Date      toml.LocalDate `toml:"date"`
+		Duration  int            `toml:"duration"`
+		Signature string         `toml:"signature"`
+		Folder    string         `toml:"folder"`
 	} `toml:"event"`
 
 	Speakers []struct {
@@ -30,6 +38,8 @@ type tomlFileCfg struct {
 		Email        string `toml:"email"`
 		TalkTitle    string `toml:"talkTitle"`
 		TalkDuration int    `toml:"talkDuration"`
+		Attendee     bool   `toml:"attendee"`
+		Notify       bool   `toml:"notify"`
 	} `toml:"speakers"`
 
 	Attendees []struct {
@@ -38,15 +48,17 @@ type tomlFileCfg struct {
 	} `toml:"attendees"`
 }
 
-func (c tomlFileCfg) GetEvent() (*certificates.Event, error) {
-	event, err := certificates.NewEvent(c.Event.Name, c.Event.Location, c.Event.Date, c.Event.Duration)
-	if err != nil {
-		return nil, err
+func (c eventConfig) GetEvent() *certificates.Event {
+	event := &certificates.Event{
+		Name:     c.Event.Name,
+		Loc:      c.Event.Location,
+		Date:     c.Event.Date.AsTime(time.Local),
+		Duration: c.Event.Duration,
 	}
-	return event, nil
+	return event
 }
 
-func (c tomlFileCfg) GetAttendees() ([]*certificates.Attendee, error) {
+func (c eventConfig) GetAttendees() []*certificates.Attendee {
 	attendees := make([]*certificates.Attendee, 0, len(c.Attendees))
 	for _, a := range c.Attendees {
 		attendees = append(attendees, &certificates.Attendee{
@@ -55,10 +67,10 @@ func (c tomlFileCfg) GetAttendees() ([]*certificates.Attendee, error) {
 		})
 
 	}
-	return attendees, nil
+	return attendees
 }
 
-func (c tomlFileCfg) GetSpeakers() ([]*certificates.Speaker, error) {
+func (c eventConfig) GetSpeakers() []*certificates.Speaker {
 	speakers := make([]*certificates.Speaker, 0, len(c.Speakers))
 	for _, s := range c.Speakers {
 		speakers = append(speakers, &certificates.Speaker{
@@ -68,80 +80,70 @@ func (c tomlFileCfg) GetSpeakers() ([]*certificates.Speaker, error) {
 			TalkDuration: s.TalkDuration,
 		})
 	}
-	return speakers, nil
+	return speakers
+}
+
+func getFileContentFromCmd(cmd *cobra.Command) ([]byte, error) {
+	filePath, err := cmd.Flags().GetString("file")
+	if err != nil {
+		return nil, err
+	}
+	if filePath == "" {
+		return nil, ErrConfigFileRequired
+	}
+
+	fileContent, err := os.ReadFile(filePath)
+	if err != nil {
+		return nil, err
+	}
+
+	return fileContent, nil
 }
 
 var generateFromFileCmd = &cobra.Command{
 	Use:   "from-file",
 	Short: "Generate certificates from a configuration file.",
 	Run: func(cmd *cobra.Command, args []string) {
-		filePath, err := cmd.Flags().GetString("file")
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%s\n", err)
-			os.Exit(1)
-		}
-		if filePath == "" {
-			fmt.Fprintf(os.Stderr, "Config file is required\n")
-			os.Exit(1)
-		}
-
-		fileContent, err := os.ReadFile(filePath)
+		fileContent, err := getFileContentFromCmd(cmd)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%s\n", err)
 			os.Exit(1)
 		}
 
-		var cfg tomlFileCfg
-		err = toml.Unmarshal(fileContent, &cfg)
+		var eventCfg eventConfig
+		err = toml.Unmarshal(fileContent, &eventCfg)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%s\n", err)
 			os.Exit(1)
 		}
 
-		event, err := cfg.GetEvent()
+		certCfg, err := config.NewCertificateFromConfig()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%s\n", err)
 			os.Exit(1)
 		}
 
-		speakers, err := cfg.GetSpeakers()
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%s\n", err)
-			os.Exit(1)
-		}
-
-		attendees, err := cfg.GetAttendees()
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%s\n", err)
-			os.Exit(1)
-		}
-
-		for _, a := range attendees {
-			c, err := certificates.NewAttendanceCertificate(
-				*a,
+		event := eventCfg.GetEvent()
+		for _, s := range eventCfg.GetSpeakers() {
+			c := certificates.NewSpeakerCertificate(
+				*s,
 				*event,
-				cfg.Event.Signature,
+				eventCfg.Event.Signature,
+				*certCfg,
 			)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "%s\n", err)
-				os.Exit(1)
-			}
 			if err := c.Generate(); err != nil {
 				fmt.Fprintf(os.Stderr, "%s\n", err)
 				os.Exit(1)
 			}
 		}
 
-		for _, s := range speakers {
-			c, err := certificates.NewSpeakerCertificate(
-				*s,
+		for _, a := range eventCfg.GetAttendees() {
+			c := certificates.NewAttendanceCertificate(
+				*a,
 				*event,
-				cfg.Event.Signature,
+				eventCfg.Event.Signature,
+				*certCfg,
 			)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "%s\n", err)
-				os.Exit(1)
-			}
 			if err := c.Generate(); err != nil {
 				fmt.Fprintf(os.Stderr, "%s\n", err)
 				os.Exit(1)

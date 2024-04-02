@@ -1,6 +1,6 @@
 ### Project specific files ###
 bin/
-**/out
+**/output
 **/signatures
 
 ### macOS ###
