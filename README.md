@@ -55,6 +55,7 @@ suacuna-cli generate attendee \
     --date="01/01/2024" \ # dd/mm/yyyy
     --duration=4 \ # horas
     --signature="Nome da Pessoa Assinante" \
+    --logo="caminho/para/logo.png" \
     --notify \ # se deseja notificar a pessoa por email
     --config="configuracao.toml"
 ```
@@ -72,6 +73,7 @@ suacuna-cli generate speaker \
     --date="01/01/2024" \ # dd/mm/yyyy
     --duration=4 \ # horas
     --signature="Nome da Pessoa Assinante" \
+    --logo="caminho/para/logo.png" \
     --attendee \ # se a pessoa também for participante
     --notify \ # se deseja notificar a pessoa por email
     --config="configuracao.toml"
