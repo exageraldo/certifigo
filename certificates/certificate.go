@@ -45,6 +45,7 @@ type Certificate struct {
 	canva     *gg.Context
 	config    *config.Certificate
 	signature string
+	logo      string
 }
 
 func (c *Certificate) Width() float64 {
@@ -101,10 +102,15 @@ func (c *Certificate) setCertificationTitle() error {
 	if err != nil {
 		return err
 	}
+
+	height := c.Height() / 4
+	if c.logo != "" {
+		height = c.Height() / 3
+	}
 	c.canva.DrawStringAnchored(
 		title,
 		c.Width()/2,
-		c.Height()/4,
+		height,
 		0.5,
 		0.5,
 	)
@@ -243,8 +249,35 @@ func (c *Certificate) setVerificationHash() error {
 	return nil
 }
 
+func (c *Certificate) setLogoImg() error {
+	if c.logo == "" {
+		return nil
+	}
+	logoPath, err := filepath.Abs(c.logo)
+	if err != nil {
+		return err
+	}
+	img, err := gg.LoadImage(logoPath)
+	if err != nil {
+		return err
+	}
+
+	resizedSignature := imaging.Resize(img, 0, 200, imaging.Lanczos)
+	c.canva.DrawImageAnchored(
+		resizedSignature,
+		int(c.Width()/2),
+		int(c.Height()/5),
+		0.5,
+		0.5,
+	)
+	return nil
+}
+
 func (c *Certificate) generate(name string) error {
 	c.setBackground()
+	if err := c.setLogoImg(); err != nil {
+		return err
+	}
 	if err := c.setCertificationTitle(); err != nil {
 		return err
 	}
@@ -254,9 +287,9 @@ func (c *Certificate) generate(name string) error {
 	if err := c.setSignature(); err != nil {
 		return err
 	}
-	if err := c.setVerificationHash(); err != nil {
-		return err
-	}
+	// if err := c.setVerificationHash(); err != nil {
+	// 	return err
+	// }
 
 	return nil
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/fogleman/gg"
 )
 
-func NewSpeakerCertificate(speaker Speaker, event Event, signature string, cfg config.Certificate) *SpeakerCertificate {
+func NewSpeakerCertificate(speaker Speaker, event Event, signature, logo string, cfg config.Certificate) *SpeakerCertificate {
 	return &SpeakerCertificate{
 		Speaker: &speaker,
 		Certificate: Certificate{
@@ -21,6 +21,7 @@ func NewSpeakerCertificate(speaker Speaker, event Event, signature string, cfg c
 			),
 			config:    &cfg,
 			signature: signature,
+			logo:      logo,
 		},
 	}
 }

@@ -129,6 +129,7 @@ var generateFromFileCmd = &cobra.Command{
 				*s,
 				*event,
 				eventCfg.Event.Signature,
+				"",
 				*certCfg,
 			)
 			if err := c.Generate(); err != nil {
@@ -142,6 +143,7 @@ var generateFromFileCmd = &cobra.Command{
 				*a,
 				*event,
 				eventCfg.Event.Signature,
+				"",
 				*certCfg,
 			)
 			if err := c.Generate(); err != nil {

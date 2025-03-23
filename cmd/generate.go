@@ -30,6 +30,10 @@ func setNotificationFlag(cmd *cobra.Command) {
 	cmd.Flags().Bool("notify", false, "Send email notification")
 }
 
+func setLogoFlag(cmd *cobra.Command) {
+	cmd.Flags().String("logo", "", "Logo image path")
+}
+
 func eventFromCmd(cmd *cobra.Command) (*certificates.Event, error) {
 	event, err := cmd.Flags().GetString("event")
 	if err != nil {

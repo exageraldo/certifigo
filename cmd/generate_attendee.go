@@ -14,6 +14,7 @@ func init() {
 	setEventFlags(generateAttendeeCmd)
 	setSignatureFlag(generateAttendeeCmd)
 	setNotificationFlag(generateAttendeeCmd)
+	setLogoFlag(generateAttendeeCmd)
 
 	generateCmd.AddCommand(generateAttendeeCmd)
 }
@@ -60,6 +61,11 @@ var generateAttendeeCmd = &cobra.Command{
 			fmt.Fprintf(os.Stderr, "%s\n", err)
 			os.Exit(1)
 		}
+		logo, err := cmd.Flags().GetString("logo")
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s\n", err)
+			os.Exit(1)
+		}
 
 		cfg, err := config.NewCertificateFromConfig()
 		if err != nil {
@@ -71,6 +77,7 @@ var generateAttendeeCmd = &cobra.Command{
 			*attendee,
 			*event,
 			signature,
+			logo,
 			*cfg,
 		)
 

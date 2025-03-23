@@ -8,7 +8,7 @@ import (
 	"github.com/fogleman/gg"
 )
 
-func NewAttendanceCertificate(attendee Attendee, event Event, signature string, cfg config.Certificate) *AttendanceCertificate {
+func NewAttendanceCertificate(attendee Attendee, event Event, signature, logo string, cfg config.Certificate) *AttendanceCertificate {
 	return &AttendanceCertificate{
 		Attendee: &attendee,
 		Certificate: Certificate{
@@ -21,6 +21,7 @@ func NewAttendanceCertificate(attendee Attendee, event Event, signature string, 
 			),
 			config:    &cfg,
 			signature: signature,
+			logo:      logo,
 		},
 	}
 }

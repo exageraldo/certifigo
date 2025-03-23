@@ -14,6 +14,7 @@ func init() {
 	setEventFlags(generateSpeakerCmd)
 	setSignatureFlag(generateSpeakerCmd)
 	setNotificationFlag(generateSpeakerCmd)
+	setLogoFlag(generateSpeakerCmd)
 
 	// generate attendee certificate
 	generateSpeakerCmd.Flags().Bool("attendee", false, "Generate attendee certificate")
@@ -77,6 +78,11 @@ var generateSpeakerCmd = &cobra.Command{
 			fmt.Fprintf(os.Stderr, "%s\n", err)
 			os.Exit(1)
 		}
+		logo, err := cmd.Flags().GetString("logo")
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s\n", err)
+			os.Exit(1)
+		}
 		cfg, err := config.NewCertificateFromConfig()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%s\n", err)
@@ -86,6 +92,7 @@ var generateSpeakerCmd = &cobra.Command{
 			*speaker,
 			*event,
 			signature,
+			logo,
 			*cfg,
 		)
 
@@ -115,6 +122,7 @@ var generateSpeakerCmd = &cobra.Command{
 				*attendee,
 				*event,
 				signature,
+				logo,
 				*cfg,
 			)
 			if err != nil {
