@@ -83,7 +83,7 @@ var generateAttendeeCmd = &cobra.Command{
 			return
 		}
 
-		var certificateConfigFile *certifigo.CertificateConfigFile
+		var certificateConfigFile certifigo.CertificateConfigFile
 		defaultCfgFile, err := certifigo.LoadDefaultCertificateConfigFile(
 			map[string]any{"Event": EventFromCLI},
 		)
@@ -103,15 +103,15 @@ var generateAttendeeCmd = &cobra.Command{
 				cmd.PrintErr(err)
 				return
 			}
-			certificateConfigFile = certifigo.Merge(defaultCfgFile, cliCfgFile)
+			certificateConfigFile = certifigo.Merge(*defaultCfgFile, *cliCfgFile)
 		} else {
-			certificateConfigFile = defaultCfgFile
+			certificateConfigFile = *defaultCfgFile
 		}
 
 		certPath, err := certifigo.NewCertificateDrawer(
 			certifigo.AttendanceCertification,
 			EventFromCLI,
-			*certificateConfigFile,
+			certificateConfigFile,
 		).DrawAndSave(AttendeeFromCLI.Name)
 		if err != nil {
 			cmd.PrintErr(err)
@@ -157,7 +157,7 @@ var generateSpeakerCmd = &cobra.Command{
 			return
 		}
 
-		var certificateConfigFile *certifigo.CertificateConfigFile
+		var certificateConfigFile certifigo.CertificateConfigFile
 		defaultCfgFile, err := certifigo.LoadDefaultCertificateConfigFile(
 			map[string]any{"Event": EventFromCLI},
 		)
@@ -177,15 +177,15 @@ var generateSpeakerCmd = &cobra.Command{
 				cmd.PrintErr(err)
 				return
 			}
-			certificateConfigFile = certifigo.Merge(defaultCfgFile, cliCfgFile)
+			certificateConfigFile = certifigo.Merge(*defaultCfgFile, *cliCfgFile)
 		} else {
-			certificateConfigFile = defaultCfgFile
+			certificateConfigFile = *defaultCfgFile
 		}
 
 		sCertPath, err := certifigo.NewCertificateDrawer(
 			certifigo.SpeakerCertification,
 			EventFromCLI,
-			*certificateConfigFile,
+			certificateConfigFile,
 		).DrawAndSave(SpeakerFromCLI.Name)
 		if err != nil {
 			cmd.PrintErr(err)
@@ -197,7 +197,7 @@ var generateSpeakerCmd = &cobra.Command{
 			aCertPath, err := certifigo.NewCertificateDrawer(
 				certifigo.AttendanceCertification,
 				EventFromCLI,
-				*certificateConfigFile,
+				certificateConfigFile,
 			).DrawAndSave(SpeakerFromCLI.Name)
 			if err != nil {
 				cmd.PrintErr(err)
@@ -241,7 +241,7 @@ var generateFromFileCmd = &cobra.Command{
 			return
 		}
 
-		var certificateConfigFile *certifigo.CertificateConfigFile
+		var certificateConfigFile certifigo.CertificateConfigFile
 		defaultCfgFile, err := certifigo.LoadDefaultCertificateConfigFile(
 			map[string]any{"Event": eventFile.Event},
 		)
@@ -261,9 +261,9 @@ var generateFromFileCmd = &cobra.Command{
 				cmd.PrintErr(err)
 				return
 			}
-			certificateConfigFile = certifigo.Merge(defaultCfgFile, cliCfgFile)
+			certificateConfigFile = certifigo.Merge(*defaultCfgFile, *cliCfgFile)
 		} else {
-			certificateConfigFile = defaultCfgFile
+			certificateConfigFile = *defaultCfgFile
 		}
 
 		var emails []certifigo.Email
@@ -271,7 +271,7 @@ var generateFromFileCmd = &cobra.Command{
 			certPath, err := certifigo.NewCertificateDrawer(
 				certifigo.AttendanceCertification,
 				eventFile.Event,
-				*certificateConfigFile,
+				certificateConfigFile,
 			).DrawAndSave(attendee.Name)
 			if err != nil {
 				cmd.PrintErr(err)
@@ -292,7 +292,7 @@ var generateFromFileCmd = &cobra.Command{
 			sCertPath, err := certifigo.NewCertificateDrawer(
 				certifigo.SpeakerCertification,
 				eventFile.Event,
-				*certificateConfigFile,
+				certificateConfigFile,
 			).DrawAndSave(speaker.Name)
 			if err != nil {
 				cmd.PrintErr(err)
@@ -304,7 +304,7 @@ var generateFromFileCmd = &cobra.Command{
 				aCertPath, err := certifigo.NewCertificateDrawer(
 					certifigo.AttendanceCertification,
 					eventFile.Event,
-					*certificateConfigFile,
+					certificateConfigFile,
 				).DrawAndSave(speaker.Name)
 				if err != nil {
 					cmd.PrintErr(err)
