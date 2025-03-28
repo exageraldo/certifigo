@@ -6,7 +6,9 @@ before:
     - go mod verify
 
 builds:
-  - binary: '{{ .ProjectName }}'
+  - id: cli
+    binary: '{{ .ProjectName }}'
+    main: ./cmd/cli/main.go
     env:
       - CGO_ENABLED=0
     flags:
@@ -15,14 +17,11 @@ builds:
       - -s
       - -w
       - -X 'main.version={{ .Version }}'
-      - -X 'main.command={{ .Binary }}'
     targets:
       - darwin_amd64
       - darwin_arm64
       - linux_amd64
       - linux_arm64
-      - windows_amd64
-      - windows_arm64
 
 archives:
   - format: tar.gz
@@ -32,7 +31,7 @@ archives:
         format: zip
 
 checksum:
-  name_template: '{{ .ProjectName }}_{{ .Version }}_SHA512SUMS'
+  name_template: '{{ .ProjectName }}_{{ .Version }}_SHA512SUMS.txt'
   algorithm: sha512
 
 release:

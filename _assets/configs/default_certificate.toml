@@ -1,0 +1,63 @@
+certification_size="1600x800"
+
+[background]
+border_color = "#616161[100%]"
+border_size=20
+color="#000000[100%]"
+
+[text]
+fonts_dir="fonts/"
+text_size=30
+text_color = "#ffffff"
+title_text_size=80
+title_text_color = "#ffffff[100%]"
+person_text_size=70
+
+[validator]
+min_length=8
+max_length=11
+text_size=20
+text_color = "#ffffff[35%]"
+
+[signature]
+folder="signatures/"
+line_length=22
+img_size=100
+text_size=60
+text_color = "#ffffff[100%]"
+title_size=15
+title_color = "#ffffff[100%]"
+
+[output]
+folder="output/"
+default_file_name="_output.json"
+
+[attendee]
+title = "CERTIFICADO DE PARTICIPAÇÃO"
+body = """
+participou do {{ .Event.Name }}, realizado no dia {{ .Event.Date }},
+nas instalações da {{ .Event.Location }}, com carga horária total de {{ .Event.Duration }} horas.
+"""
+email_subject = "Seu certificado chegou!"
+email_body = """
+Olá, tudo bem?
+
+Aqui está seu certificado de participação do evento {{.Event.Name}}
+
+Att,
+"""
+
+[speaker]
+title = "CERTIFICADO DE PALESTRANTE"
+body = """
+participou do {{ .Event.Name }}, realizado no dia {{ .Event.Date }},
+nas instalações da {{ .Event.Location }}, com carga horária total de {{ .Event.Duration }} horas.
+"""
+email_subject = "Seu certificado chegou!"
+email_body = """
+Olá, tudo bem?
+
+Aqui está seu certificado de participação do evento {{.Event.Name}}
+
+Att,
+"""
