@@ -2,6 +2,7 @@
 bin/
 **/output
 **/signatures
+**/dist
 
 ### macOS ###
 .DS_Store

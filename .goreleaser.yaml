@@ -8,7 +8,7 @@ before:
 builds:
   - id: cli
     binary: '{{ .ProjectName }}'
-    main: ./cmd/cli/main.go
+    dir: ./cmd/cli/
     env:
       - CGO_ENABLED=0
     flags:
