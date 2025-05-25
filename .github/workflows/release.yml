@@ -1,4 +1,4 @@
-name: 'suacuna-clu release'
+name: 'certifigo-cli release'
 
 on:
   push:
@@ -36,5 +36,5 @@ jobs:
         name: Upload assets
         uses: actions/upload-artifact@v4
         with:
-          name: suacuna-cli
+          name: certifigo-cli
           path: ./dist/*
