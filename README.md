@@ -100,6 +100,7 @@ location="Nome do Local"
 date="01/01/2024" # dd/mm/yyyy
 duration=4 # horas
 signature="Nome da Pessoa Assinante"
+logo="caminho/para/logo.png"
 
 [[attendees]]
 name="Nome da Pessoa Participante"
@@ -129,11 +130,11 @@ certifigo generate from-file \
     --config="configuracao.toml"
 ```
 
-#### Parâmetros Opcionais:
-- `--config`: Caminho para o arquivo de configuração no formato TOML.
-
 #### Parâmetros Obrigatórios:
-- `--config`: Caminho para o arquivo de configuração no formato TOML.
+- `--file`: Caminho para o arquivo com as informações do evento no formato TOML.
+
+#### Parâmetros Opcionais:
+- `--config`: Caminho para o arquivo de config no formato TOML.
 
 ### Definindo as credenciais para enviar email
 
