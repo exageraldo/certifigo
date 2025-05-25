@@ -7,10 +7,27 @@ before:
 
 builds:
   - id: cli
-    binary: '{{ .ProjectName }}'
+    binary: 'certifigo-cli'
     dir: ./cmd/cli/
     env:
       - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s
+      - -w
+      - -X 'main.version={{ .Version }}'
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+
+  - id: microservice
+    binary: 'certifigo-microservice'
+    dir: ./cmd/microservice/
+    env:
+      - CGO_ENABLED=1
     flags:
       - -trimpath
     ldflags:

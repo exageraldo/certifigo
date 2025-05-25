@@ -6,6 +6,9 @@ require (
 	github.com/disintegration/imaging v1.6.2
 	github.com/fogleman/gg v1.3.0
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
+	github.com/google/uuid v1.6.0
+	github.com/justinas/alice v1.2.0
+	github.com/mattn/go-sqlite3 v1.14.6
 	github.com/pelletier/go-toml/v2 v2.2.3
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/viper v1.20.0

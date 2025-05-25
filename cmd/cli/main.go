@@ -21,8 +21,8 @@ func init() {
 }
 
 var rootCmd = &cobra.Command{
-	Use:     "certifigo",
-	Short:   "certifigo is a CLI tool to generate certificates for events.",
+	Use:     "certifigo-cli",
+	Short:   "certifigo-cli tool to generate certificates for events.",
 	Version: version,
 }
 

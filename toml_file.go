@@ -14,10 +14,18 @@ import (
 )
 
 type WxHSize struct {
-	Width  int
-	Height int
+	Width  int `json:"width"`
+	Height int `json:"height"`
 
 	raw string // "WxH"
+}
+
+// func (s *WxHSize) UnmarshalJSON(p []byte) error {
+// 	return nil
+// }
+
+func (s *WxHSize) MarshalJSON() ([]byte, error) {
+	return []byte(fmt.Sprintf(`"%dx%d"`, s.Width, s.Height)), nil
 }
 
 func (s *WxHSize) UnmarshalTOML(value *unstable.Node) error {
@@ -49,6 +57,10 @@ type HexColor struct {
 	raw string // "#RRGGBB" or "#RRGGBB[AAA%]"
 }
 
+func (h *HexColor) MarshalJSON() ([]byte, error) {
+	return []byte(fmt.Sprintf(`"%s"`, h.raw)), nil
+}
+
 func (h *HexColor) UnmarshalTOML(value *unstable.Node) error {
 	pattern := `^#(?P<r>[0-9A-Fa-f]{2})(?P<g>[0-9A-Fa-f]{2})(?P<b>[0-9A-Fa-f]{2})(?:\[(?P<a>\d{1,3})%\])?$`
 	matches, err := FindNamedMatches(string(value.Data), pattern)
@@ -75,20 +87,26 @@ func (h *HexColor) UnmarshalTOML(value *unstable.Node) error {
 	h.G = uint8(g)
 	h.B = uint8(b)
 
+	var alphaValue int
 	if alpha, ok := matches["a"]; ok && alpha != "" {
+		alphaValue, err = strconv.Atoi(alpha)
+		if err != nil {
+			return fmt.Errorf("error converting alpha percentage to int: %v", err)
+		}
+		if alphaValue < 0 || alphaValue > 100 {
+			return fmt.Errorf("alpha percentage must be between 0 and 100: %v", alphaValue)
+		}
 		a, err := strconv.ParseUint(alpha, 10, 8)
 		if err != nil {
 			return fmt.Errorf("error converting alpha component to int8: %v", err)
 		}
-		if a > 100 {
-			return fmt.Errorf("alpha percentage must be between 0 and 100: %v", a)
-		}
 		h.A = uint8(a * 255 / 100)
 	} else {
+		alphaValue = 100
 		h.A = 255 // default alpha value
 	}
 
-	h.raw = string(value.Data)
+	h.raw = fmt.Sprintf("#%02X%02X%02X[%d%%]", h.R, h.G, h.B, alphaValue)
 	return nil
 }
 

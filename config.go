@@ -25,6 +25,8 @@ func NewEnvCredentials() (*EnvCredentials, error) {
 type EnvCredentials struct {
 	EmailSender   string `mapstructure:"EMAIL_SENDER"`
 	EmailPassword string `mapstructure:"EMAIL_PASSWORD"`
+
+	JWTToken string `mapstructure:"JWT_TOKEN"`
 }
 
 func (c *EnvCredentials) CheckEmailCredentials() bool {
