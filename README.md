@@ -4,6 +4,17 @@
 
 Uma ferramenta para geração automatizada de certificados personalizados para eventos, com suporte a templates configuráveis e envio de e-mails.
 
+## Download
+
+A ferramenta está disponível para download nas seguintes plataformas:
+
+|       | AMD64 | ARM64 |
+|-------|-------|-------|
+| Linux | [v0.0.1-dev6](https://github.com/exageraldo/certifigo/releases/download/v0.0.1-dev6/certifigo_0.0.1-dev6_linux_amd64.tar.gz)  | [v0.0.1-dev6](https://github.com/exageraldo/certifigo/releases/download/v0.0.1-dev6/certifigo_0.0.1-dev6_linux_arm64.tar.gz)  |
+| MacOS | [v0.0.1-dev6](https://github.com/exageraldo/certifigo/releases/download/v0.0.1-dev6/certifigo_0.0.1-dev6_darwin_amd64.tar.gz)  | [v0.0.1-dev6](https://github.com/exageraldo/certifigo/releases/download/v0.0.1-dev6/certifigo_0.0.1-dev6_darwin_arm64.tar.gz)  |
+
+Mais detalhes no [link do release](https://github.com/exageraldo/certifigo/releases/latest)
+
 ## Uso
 
 ### Gerando certificado de participação
